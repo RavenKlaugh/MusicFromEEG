@@ -1,0 +1,34 @@
+in_thread do
+  loop do
+    cue :tick
+    sleep 1
+  end
+end
+
+sleep(0.3)
+
+# once per tick, play note from osc if got a note from osc since last tick
+in_thread do
+  loop do
+    sync :tick
+    note1, note2, note3 = get "/osc*/trigger/prophet/muse/elements/alpha_absolute"
+    synth :prophet, note: note1
+    synth :prophet, note: note2
+    synth :prophet, note: note3
+  end
+end
+
+in_thread do
+  loop do
+    sync :tick
+    sleep(0.5)
+    sample :drum_heavy_kick
+  end
+end
+
+live_loop :midi_piano do
+  use_real_time
+  note, velocity = sync "/midi:lkmk3_midi_0:1/note_on"
+  synth :prophet, note: note, amp: velocity / 60.0
+end
+
